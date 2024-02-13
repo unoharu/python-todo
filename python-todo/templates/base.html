@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block meta %}{% endblock %}
+</head>
+
+<body>
+    <div>
+        <header class="py-4 mx-auto px-4">
+            <nav class="flex items-center justify-between">
+                <h1 class="text-3xl font-bold text-gray-900"><a href="/">My Diary</a></h1>
+                <ul class="flex space-x-4">
+                    {% if session.get('login', False) %}
+                        <li><a href="{{ url_for('signout') }}" class="text-blue-500 hover:underline">サインアウト</a></li>
+                        <li><a href="{{ url_for('dashboard') }}" class="text-blue-500 hover:underline">日記を作成・閲覧</a></li>
+                        <li><a href="{{ url_for('delete_user_page') }}" class="text-blue-500 hover:underline">ユーザー削除</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('signin') }}" class="text-blue-500 hover:underline">ログイン</a></li>
+                        <li><a href="{{ url_for('signup') }}" class="text-blue-500 hover:underline">ユーザー作成</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </header>
+    </div>
+    {% block content %}{% endblock %}
+    <script>
+        $(document).ready(function() {
+            // /get_json に Ajax リクエストを送信
+            $.ajax({
+                url: "/get_json",
+                type: "GET",
+                success: function(response) {
+                    // 成功時に JSON データを表示
+                    console.log(response);  // ブラウザのコンソールに表示
+                    // ここで取得したデータを適切に処理して表示するロジックを追加
+                },
+                error: function(error) {
+                    // エラー時の処理
+                    console.log("エラー:", error);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

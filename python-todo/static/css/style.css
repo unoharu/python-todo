@@ -1,0 +1,13 @@
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: white; /* ヘッダーの背景色を設定 */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* ヘッダーに影を追加 */
+    z-index: 1000; /* 他の要素より手前に表示 */
+}
+
+.dashboard{
+    padding-top: 8rem;
+}
