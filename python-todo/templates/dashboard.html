@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard">
+<div class="container mx-auto p-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- 新しい日記を書き込むフォーム -->
+      <div class="mb-8">
+          <h1 class="text-2xl font-bold mb-4">お帰りなさい、{{ session.user[3] }}さん</h1>
+          <p class="mb-4">毎日の記録を残そう</p>
+
+          <form action="{{ url_for('create_diary') }}" method="post">
+              <div class="mb-4">
+                  <label for="title" class="block text-sm font-medium text-gray-600">タイトル:</label>
+                  <input type="text" id="title" name="title" required
+                         class="mt-1 p-2 w-full border border-gray-300 rounded-md">
+              </div>
+
+              <div class="mb-4">
+                  <label for="comment" class="block text-sm font-medium text-gray-600">本文:</label>
+                  <textarea id="comment" name="comment" rows="4" required
+                            class="mt-1 p-2 w-full border border-gray-300 rounded-md"></textarea>
+              </div>
+
+              <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">作成</button>
+          </form>
+      </div>
+
+      <!-- 日記の一覧表示 -->
+      <div>
+          <h2 class="text-2xl font-bold mb-4">あなたの日記</h2>
+          <ul id="diaries-list" class="list-disc pl-4">
+              {% for diary in diaries %}
+                  <li class="mb-2">
+                      <span class="font-semibold">{{ diary.date }}</span>
+                      <h3 class="text-lg font-medium">{{ diary.title }}</h3>
+                      <p>{{ diary.comment }}</p>
+                  </li>
+              {% endfor %}
+          </ul>
+      </div>
+  </div>
+</div>
+</div>
+
+<!-- JSON データの表示用スクリプト -->
+<script>
+  $(document).ready(function() {
+    // 関数を定義して、データを表示する処理を再利用可能にする
+    function showDiaries() {
+        // /get_json に Ajax リクエストを送信
+        $.ajax({
+            url: "/get_json",
+            type: "GET",
+            success: function(response) {
+                // 成功時に JSON データを表示
+                console.log(response);  // ブラウザのコンソールに表示
+
+                // 既存の日記一覧を一旦クリア
+                $("#diaries-list").empty();
+
+                // 新しいデータを逆順に追加
+                for (var i = response.diaries.length - 1; i >= 0; i--) {
+                    var diaryItem = '<li class="mb-2">' +
+                        '<span class="font-semibold">' + response.diaries[i].date + '</span>' +
+                        '<h3 class="text-lg font-medium">' + response.diaries[i].title + '</h3>' +
+                        '<p>' + response.diaries[i].comment + '</p>' +
+                        '</li>';
+                    $("#diaries-list").append(diaryItem);
+                }
+            },
+            error: function(error) {
+                // エラー時の処理
+                console.log("エラー:", error);
+            }
+        });
+    }
+
+    // 初回のデータ表示
+    showDiaries();
+
+    // 新しい日記を作成するフォームの送信イベントを設定
+    $("form").submit(function(event) {
+        // ページ遷移を防ぐ
+        event.preventDefault();
+
+        // フォームデータを取得
+        var formData = $(this).serialize();
+
+        // /create_diary に Ajax リクエストを送信
+        $.ajax({
+            url: "/create_diary",
+            type: "POST",
+            data: formData,
+            success: function(response) {
+                // 成功時にメッセージをコンソールに表示
+                console.log(response.success);
+
+                // 新しい日記が作成されたので、再度データを表示
+                showDiaries();
+            },
+            error: function(error) {
+                // エラー時の処理
+                console.log("エラー:", error);
+            }
+        });
+    });
+});
+</script>
+<!-- JSON データの表示用スクリプトここまで -->
+
+{% endblock %}
