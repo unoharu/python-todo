@@ -11,3 +11,6 @@ htmlcov/
 *.sqlite3
 .DS_Store
 all_users_diaries/*.json
+docs/
+.claude/
+.github/
