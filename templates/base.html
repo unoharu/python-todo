@@ -16,37 +16,20 @@
             <nav class="flex items-center justify-between">
                 <h1 class="text-3xl font-bold text-gray-900"><a href="/">My Diary</a></h1>
                 <ul class="flex space-x-4">
-                    {% if session.get('login', False) %}
-                        <li><a href="{{ url_for('signout') }}" class="text-blue-500 hover:underline">サインアウト</a></li>
-                        <li><a href="{{ url_for('dashboard') }}" class="text-blue-500 hover:underline">日記を作成・閲覧</a></li>
-                        <li><a href="{{ url_for('delete_user_page') }}" class="text-blue-500 hover:underline">ユーザー削除</a></li>
+                    {# session.user_id の有無でログイン状態を判定する #}
+                    {% if session.get('user_id') %}
+                        <li><a href="{{ url_for('auth.signout') }}" class="text-blue-500 hover:underline">サインアウト</a></li>
+                        <li><a href="{{ url_for('diary.dashboard') }}" class="text-blue-500 hover:underline">日記を作成・閲覧</a></li>
+                        <li><a href="{{ url_for('diary.delete_user_page') }}" class="text-blue-500 hover:underline">ユーザー削除</a></li>
                     {% else %}
-                        <li><a href="{{ url_for('signin') }}" class="text-blue-500 hover:underline">ログイン</a></li>
-                        <li><a href="{{ url_for('signup') }}" class="text-blue-500 hover:underline">ユーザー作成</a></li>
+                        <li><a href="{{ url_for('auth.signin') }}" class="text-blue-500 hover:underline">ログイン</a></li>
+                        <li><a href="{{ url_for('auth.signup') }}" class="text-blue-500 hover:underline">ユーザー作成</a></li>
                     {% endif %}
                 </ul>
             </nav>
         </header>
     </div>
     {% block content %}{% endblock %}
-    <script>
-        $(document).ready(function() {
-            // /get_json に Ajax リクエストを送信
-            $.ajax({
-                url: "/get_json",
-                type: "GET",
-                success: function(response) {
-                    // 成功時に JSON データを表示
-                    console.log(response);  // ブラウザのコンソールに表示
-                    // ここで取得したデータを適切に処理して表示するロジックを追加
-                },
-                error: function(error) {
-                    // エラー時の処理
-                    console.log("エラー:", error);
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>
