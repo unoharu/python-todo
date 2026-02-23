@@ -32,10 +32,13 @@ class DiaryEntry:
 
     @staticmethod
     def list_by_user(user_id: int) -> List["DiaryEntry"]:
-        """指定ユーザーの日記を作成日時の降順（新しい順）で返す。"""
+        """指定ユーザーの日記を作成日時の降順（新しい順）で返す。
+
+        同一秒内に複数挿入された場合は id DESC を補助キーにして順序を保証する。
+        """
         db = get_db()
         rows = db.execute(
-            "SELECT * FROM diaries WHERE user_id = ? ORDER BY created_at DESC",
+            "SELECT * FROM diaries WHERE user_id = ? ORDER BY created_at DESC, id DESC",
             (user_id,)
         ).fetchall()
         return [DiaryEntry.from_row(row) for row in rows]
