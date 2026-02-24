@@ -10,3 +10,4 @@ python-dotenv==1.2.1
 SQLAlchemy==2.0.40
 Werkzeug==3.1.6
 zipp==3.23.0
+pytailwindcss==0.2.0
