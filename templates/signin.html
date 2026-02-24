@@ -2,58 +2,50 @@
 {% block title %}ログイン — Nota{% endblock %}
 
 {% block content %}
-<div style="min-height:calc(100vh - 56px);display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden;">
+<div class="auth-page">
 
     <!-- 背景の罫線 -->
-    <div class="notebook-lines" style="position:absolute;inset:0;opacity:0.25;pointer-events:none;"></div>
+    <div class="notebook-lines" style="position:absolute;inset:0;opacity:0.2;pointer-events:none;"></div>
 
-    <div style="width:100%;max-width:400px;position:relative;z-index:1;">
-        <!-- ヘッダー -->
-        <div style="text-align:center;margin-bottom:32px;">
-            <h1 style="font-family:var(--font-serif);font-size:1.6rem;font-weight:700;color:var(--color-ink);margin-bottom:6px;">
-                おかえりなさい
-            </h1>
-            <p style="font-size:0.875rem;color:var(--color-muted);">続きを書きましょう</p>
+    <div class="auth-card">
+        <div class="auth-heading">
+            <h1>おかえりなさい</h1>
+            <p>続きを書きましょう</p>
         </div>
 
-        <!-- カード -->
-        <div class="note-card" style="padding:32px;">
-            <!-- エラーメッセージ -->
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="alert-error" style="margin-bottom:20px;">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
+        <div class="note-card">
+            <div class="note-card-body">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert-error" style="margin-bottom:20px;">
+                            {% for message in messages %}
+                                <p>{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form action="{{ url_for('auth.auth') }}" method="post">
+                    <div class="form-group">
+                        <label for="email" class="form-label">メールアドレス</label>
+                        <input type="email" name="email" id="email"
+                               class="form-input" placeholder="you@example.com" autocomplete="email">
                     </div>
-                {% endif %}
-            {% endwith %}
-
-            <form action="{{ url_for('auth.auth') }}" method="post">
-                <div style="margin-bottom:18px;">
-                    <label for="email" class="form-label">メールアドレス</label>
-                    <input type="email" name="email" id="email"
-                           class="form-input" placeholder="you@example.com" autocomplete="email">
-                </div>
-                <div style="margin-bottom:24px;">
-                    <label for="password" class="form-label">パスワード</label>
-                    <input type="password" name="password" id="password"
-                           class="form-input" placeholder="••••••••" autocomplete="current-password">
-                </div>
-                <button type="submit" class="btn-primary" style="width:100%;">
-                    ログイン
-                </button>
-            </form>
+                    <div class="form-group" style="margin-bottom:24px;">
+                        <label for="password" class="form-label">パスワード</label>
+                        <input type="password" name="password" id="password"
+                               class="form-input" placeholder="••••••••" autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">
+                        ログイン
+                    </button>
+                </form>
+            </div>
         </div>
 
-        <!-- 登録リンク -->
-        <p style="text-align:center;margin-top:20px;font-size:0.825rem;color:var(--color-muted);">
+        <p class="auth-footer">
             はじめての方は
-            <a href="{{ url_for('auth.signup') }}"
-               style="color:var(--color-indigo);text-decoration:none;font-weight:500;"
-               onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-                アカウント作成
-            </a>
+            <a href="{{ url_for('auth.signup') }}">アカウント作成</a>
         </p>
     </div>
 </div>

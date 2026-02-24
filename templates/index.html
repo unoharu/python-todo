@@ -2,46 +2,38 @@
 {% block title %}Nota — 毎日の記録{% endblock %}
 
 {% block content %}
-<div style="min-height:calc(100vh - 56px);display:flex;flex-direction:column;justify-content:center;overflow:hidden;position:relative;">
+<div class="landing-page">
 
     <!-- 背景：右半分にノート罫線 -->
     <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden;">
-        <div class="notebook-lines" style="position:absolute;right:0;top:0;bottom:0;width:48%;opacity:0.4;"></div>
-        <div style="position:absolute;right:48%;top:0;bottom:0;width:1px;background:var(--color-border);"></div>
-        <div style="position:absolute;right:calc(48% - 100px);top:0;bottom:0;width:1px;background:var(--color-indigo);opacity:0.12;"></div>
+        <div class="notebook-lines" style="position:absolute;right:0;top:0;bottom:0;width:46%;opacity:0.35;"></div>
+        <div style="position:absolute;right:46%;top:0;bottom:0;width:1.5px;background:var(--border);"></div>
+        <div style="position:absolute;right:calc(46% - 92px);top:0;bottom:0;width:1.5px;background:var(--margin-line);opacity:0.5;"></div>
     </div>
 
-    <div style="max-width:960px;margin:0 auto;padding:0 40px;width:100%;position:relative;z-index:1;">
+    <div class="landing-content">
         <div style="max-width:500px;">
-            <p style="font-size:0.72rem;font-weight:500;letter-spacing:0.14em;color:var(--color-indigo);text-transform:uppercase;margin-bottom:18px;">
-                Your daily notebook
-            </p>
-            <h1 style="font-family:var(--font-serif);font-size:clamp(2.2rem,5.5vw,3.6rem);font-weight:700;line-height:1.18;color:var(--color-ink);margin-bottom:22px;letter-spacing:-0.03em;">
+            <p class="landing-eyebrow">Your daily notebook</p>
+            <h1 class="landing-title">
                 今日のことを<br>書き留めよう
             </h1>
-            <p style="font-size:0.95rem;color:var(--color-muted);line-height:1.75;margin-bottom:36px;max-width:360px;">
+            <p class="landing-desc">
                 授業のこと、気づいたこと、どんな小さなことでも。<br>
                 毎日の記録が、未来の自分へのメッセージになる。
             </p>
-            <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+            <div class="landing-cta">
                 {% if session.get('user_id') %}
-                    <a href="{{ url_for('diary.dashboard') }}" class="btn-primary" style="text-decoration:none;">
-                        ノートを開く
-                    </a>
+                    <a href="{{ url_for('diary.dashboard') }}" class="btn-primary">ノートを開く</a>
                 {% else %}
-                    <a href="{{ url_for('auth.signup') }}" class="btn-primary" style="text-decoration:none;">
-                        無料ではじめる
-                    </a>
-                    <a href="{{ url_for('auth.signin') }}"
-                       style="font-size:0.875rem;color:var(--color-muted);text-decoration:none;"
-                       onmouseover="this.style.color='var(--color-ink)'" onmouseout="this.style.color='var(--color-muted)'">
+                    <a href="{{ url_for('auth.signup') }}" class="btn-primary">無料ではじめる</a>
+                    <a href="{{ url_for('auth.signin') }}" class="landing-sub-link">
                         ログインはこちら →
                     </a>
                 {% endif %}
             </div>
-            <div style="margin-top:56px;display:flex;align-items:center;gap:12px;">
-                <div style="width:28px;height:1px;background:var(--color-border);"></div>
-                <span style="font-size:0.7rem;color:var(--color-muted);letter-spacing:0.06em;">シンプルに、続けやすく</span>
+            <div class="landing-tagline">
+                <div class="landing-tagline-line"></div>
+                <span class="landing-tagline-text">シンプルに、続けやすく</span>
             </div>
         </div>
     </div>

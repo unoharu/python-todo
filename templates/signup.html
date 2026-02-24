@@ -2,61 +2,55 @@
 {% block title %}アカウント作成 — Nota{% endblock %}
 
 {% block content %}
-<div style="min-height:calc(100vh - 56px);display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden;">
+<div class="auth-page">
 
     <!-- 背景の罫線 -->
-    <div class="notebook-lines" style="position:absolute;inset:0;opacity:0.25;pointer-events:none;"></div>
+    <div class="notebook-lines" style="position:absolute;inset:0;opacity:0.2;pointer-events:none;"></div>
 
-    <div style="width:100%;max-width:400px;position:relative;z-index:1;">
-        <!-- ヘッダー -->
-        <div style="text-align:center;margin-bottom:32px;">
-            <h1 style="font-family:var(--font-serif);font-size:1.6rem;font-weight:700;color:var(--color-ink);margin-bottom:6px;">
-                はじめまして
-            </h1>
-            <p style="font-size:0.875rem;color:var(--color-muted);">アカウントを作って書きはじめよう</p>
+    <div class="auth-card">
+        <div class="auth-heading">
+            <h1>はじめまして</h1>
+            <p>アカウントを作って書きはじめよう</p>
         </div>
 
-        <!-- カード -->
-        <div class="note-card" style="padding:32px;">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="alert-error" style="margin-bottom:20px;">
-                        {% for message in messages %}
-                            <p>{{ message }}</p>
-                        {% endfor %}
+        <div class="note-card">
+            <div class="note-card-body">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert-error" style="margin-bottom:20px;">
+                            {% for message in messages %}
+                                <p>{{ message }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <form action="{{ url_for('auth.register') }}" method="post">
+                    <div class="form-group">
+                        <label for="username" class="form-label">ユーザー名</label>
+                        <input type="text" name="username" id="username"
+                               class="form-input" placeholder="yamada taro" autocomplete="nickname">
                     </div>
-                {% endif %}
-            {% endwith %}
-
-            <form action="{{ url_for('auth.register') }}" method="post">
-                <div style="margin-bottom:18px;">
-                    <label for="username" class="form-label">ユーザー名</label>
-                    <input type="text" name="username" id="username"
-                           class="form-input" placeholder="yamada taro" autocomplete="nickname">
-                </div>
-                <div style="margin-bottom:18px;">
-                    <label for="email" class="form-label">メールアドレス</label>
-                    <input type="email" name="email" id="email"
-                           class="form-input" placeholder="you@example.com" autocomplete="email">
-                </div>
-                <div style="margin-bottom:24px;">
-                    <label for="password" class="form-label">パスワード（8文字以上）</label>
-                    <input type="password" name="password" id="password"
-                           class="form-input" placeholder="••••••••" autocomplete="new-password">
-                </div>
-                <button type="submit" class="btn-primary" style="width:100%;">
-                    アカウントを作成
-                </button>
-            </form>
+                    <div class="form-group">
+                        <label for="email" class="form-label">メールアドレス</label>
+                        <input type="email" name="email" id="email"
+                               class="form-input" placeholder="you@example.com" autocomplete="email">
+                    </div>
+                    <div class="form-group" style="margin-bottom:24px;">
+                        <label for="password" class="form-label">パスワード（8文字以上）</label>
+                        <input type="password" name="password" id="password"
+                               class="form-input" placeholder="••••••••" autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;">
+                        アカウントを作成
+                    </button>
+                </form>
+            </div>
         </div>
 
-        <p style="text-align:center;margin-top:20px;font-size:0.825rem;color:var(--color-muted);">
+        <p class="auth-footer">
             すでにアカウントをお持ちの方は
-            <a href="{{ url_for('auth.signin') }}"
-               style="color:var(--color-indigo);text-decoration:none;font-weight:500;"
-               onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
-                ログイン
-            </a>
+            <a href="{{ url_for('auth.signin') }}">ログイン</a>
         </p>
     </div>
 </div>
