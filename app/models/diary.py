@@ -1,4 +1,4 @@
-from typing import List, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 from sqlalchemy import Integer, String, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -77,6 +77,44 @@ class DiaryEntry(db.Model):
         """
         entry = cls(user_id=user_id, title=title, comment=comment)
         db.session.add(entry)
+        db.session.commit()
+        return entry
+
+    @classmethod
+    def delete_by_id_and_user(cls, diary_id: int, user_id: int) -> bool:
+        """日記を削除する。user_id が一致しない場合は削除しない。
+
+        ## 所有者チェックをモデル層で行う理由
+        ルート層で「まず取得、次に user_id を確認、次に削除」と書くと
+        ルートごとにチェックロジックが散らばる。モデル層でまとめることで
+        「自分のものしか削除できない」というルールが1箇所に集まる。
+
+        Returns:
+            True: 削除成功
+            False: 対象が存在しない、または user_id が一致しない
+        """
+        entry = db.session.get(cls, diary_id)
+        if entry is None or entry.user_id != user_id:
+            return False
+        db.session.delete(entry)
+        db.session.commit()
+        return True
+
+    @classmethod
+    def update_by_id_and_user(
+        cls, diary_id: int, user_id: int, title: str, comment: str
+    ) -> Optional["DiaryEntry"]:
+        """日記を更新する。所有者でなければ None を返す。
+
+        SQLAlchemy のセッションはオブジェクトの変更を追跡する（Unit of Work パターン）。
+        `entry.title = title` のように属性に代入するだけで、
+        commit 時に UPDATE 文が自動発行される。明示的な session.add() は不要。
+        """
+        entry = db.session.get(cls, diary_id)
+        if entry is None or entry.user_id != user_id:
+            return None
+        entry.title = title
+        entry.comment = comment
         db.session.commit()
         return entry
 
