@@ -20,7 +20,6 @@
                     {% if session.get('user_id') %}
                         <li><a href="{{ url_for('auth.signout') }}" class="text-blue-500 hover:underline">サインアウト</a></li>
                         <li><a href="{{ url_for('diary.dashboard') }}" class="text-blue-500 hover:underline">日記を作成・閲覧</a></li>
-                        <li><a href="{{ url_for('diary.delete_user_page') }}" class="text-blue-500 hover:underline">ユーザー削除</a></li>
                     {% else %}
                         <li><a href="{{ url_for('auth.signin') }}" class="text-blue-500 hover:underline">ログイン</a></li>
                         <li><a href="{{ url_for('auth.signup') }}" class="text-blue-500 hover:underline">ユーザー作成</a></li>
