@@ -1,11 +1,14 @@
-from flask import Blueprint, render_template, redirect, request, session, jsonify
+from flask import Blueprint, render_template, request, session, jsonify
 
 from app.auth import login_required
 from app.models.user import User
 from app.services.diary_service import (
     get_user_diaries,
     create_diary_entry,
+    delete_diary_entry,
+    update_diary_entry,
     ValidationError,
+    NotFoundOrForbiddenError,
 )
 
 diary_bp = Blueprint("diary", __name__)
@@ -55,22 +58,40 @@ def create_diary():
     return jsonify({"success": "日記が作成されました。"})
 
 
-@diary_bp.route("/user/delete")
+@diary_bp.route("/diary/<int:diary_id>/delete", methods=["POST"])
 @login_required
-def delete_user_page():
-    """アカウント削除確認ページを表示する。"""
-    return render_template("delete_user.html")
+def delete_diary(diary_id: int):
+    """日記を削除する（AJAX エンドポイント）。
 
+    自分の日記のみ削除可能。他人の日記または存在しない ID は 403 を返す。
 
-@diary_bp.route("/user/delete_confirm", methods=["POST"])
-@login_required
-def delete_user():
-    """アカウントを削除する。
-
-    ON DELETE CASCADE により diaries テーブルの関連データも自動削除される。
-    削除後はセッションをクリアしてトップページへリダイレクトする。
+    ## なぜ GET ではなく POST か
+    GET リクエストはブラウザがキャッシュ・プリフェッチすることがある。
+    削除のような副作用を伴う操作は必ず POST（または DELETE）にする。
     """
-    user_id = session["user_id"]
-    User.delete(user_id)
-    session.clear()
-    return redirect("/")
+    try:
+        delete_diary_entry(diary_id, session["user_id"])
+    except NotFoundOrForbiddenError:
+        return jsonify({"error": "削除できませんでした。"}), 403
+
+    return jsonify({"success": "削除しました。"})
+
+
+@diary_bp.route("/diary/<int:diary_id>/update", methods=["POST"])
+@login_required
+def update_diary(diary_id: int):
+    """日記を更新する（AJAX エンドポイント）。
+
+    自分の日記のみ更新可能。バリデーションエラーは 400、権限エラーは 403 を返す。
+    """
+    title = request.form.get("title", "")
+    comment = request.form.get("comment", "")
+
+    try:
+        update_diary_entry(diary_id, session["user_id"], title, comment)
+    except ValidationError as e:
+        return jsonify({"error": str(e)}), 400
+    except NotFoundOrForbiddenError:
+        return jsonify({"error": "更新できませんでした。"}), 403
+
+    return jsonify({"success": "更新しました。"})
