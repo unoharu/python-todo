@@ -9,6 +9,7 @@ env/
 htmlcov/
 *.log
 *.sqlite3
+instance/
 .DS_Store
 all_users_diaries/*.json
 docs/
