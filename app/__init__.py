@@ -4,7 +4,7 @@ from flask import Flask
 from dotenv import load_dotenv
 
 from app.config import config
-from app import db
+from app.db import db, init_app as db_init_app
 
 
 def create_app(config_name: Optional[str] = None) -> Flask:
@@ -35,10 +35,16 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     # JSON レスポンスで日本語を文字化けさせない
     app.json.ensure_ascii = False
 
-    # DB 初期化フックを登録
-    db.init_app(app)
+    # SQLAlchemy を Flask アプリに紐づけ、CLI コマンドを登録する
+    db_init_app(app)
 
-    # Blueprint の登録（Phase 4 で追加する）
+    # モデルモジュールを import することで db.create_all() がテーブルを認識できる。
+    # ローカル変数 app（Flask インスタンス）と名前が衝突しないよう from 形式で書く。
+    # _models に束ねることで「副作用目的の import」であることを明示し、
+    # IDE の「未参照」ヒントも抑制する。
+    from app import models as _models
+    _ = _models
+
     from app.routes.auth import auth_bp
     from app.routes.diary import diary_bp
 

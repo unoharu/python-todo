@@ -1,10 +1,20 @@
 import os
 
+_BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+_DB_PATH = os.path.join(_BASE_DIR, "instance", "diary.db")
+
 
 class Config:
     """全環境共通の設定基底クラス。"""
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-fallback-key-change-in-production")
-    DATABASE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "instance", "diary.db")
+
+    # SQLAlchemy が接続先を判断するための URI。
+    # SQLite の場合は "sqlite:///絶対パス" の形式になる（スラッシュが3つ）。
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{_DB_PATH}"
+
+    # SQLAlchemy がモデルの変更を追跡する機能（不要なためオフ）。
+    # True にするとメモリを余分に使うので、明示的に False を設定しておく。
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
 class DevelopmentConfig(Config):
@@ -15,7 +25,9 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     """テスト環境の設定。インメモリ DB を使用する。"""
     TESTING = True
-    DATABASE = ":memory:"
+    # テスト用インメモリ DB の URI。
+    # "sqlite:///:memory:" は接続を閉じると DB が消える揮発的な SQLite DB。
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
 
 
 class ProductionConfig(Config):

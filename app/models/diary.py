@@ -1,61 +1,95 @@
-from dataclasses import dataclass, asdict
-from typing import List
-from app.db import get_db
+from typing import List, TYPE_CHECKING
+from sqlalchemy import Integer, String, Text, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.db import db
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
-@dataclass
-class DiaryEntry:
-    """diaries テーブルの1行を表すデータクラス。"""
-    id: int
-    user_id: int
-    title: str
-    comment: str
-    created_at: str
+class DiaryEntry(db.Model):
+    """diaries テーブルの ORM モデル。
+
+    ## ForeignKey（外部キー）
+    `ForeignKey("users.id")` は「このカラムは users テーブルの id カラムを参照する」
+    という DB レベルの制約。参照先が存在しない値を INSERT しようとするとエラーになる。
+
+    ## relationship の back_populates
+    User.diaries と DiaryEntry.user を双方向に紐づける。
+    - `entry.user` → その日記を所有する User オブジェクトが取得できる
+    - `user.diaries` → そのユーザーの全 DiaryEntry が取得できる
+    SQLAlchemy はどちらかを変更したとき、もう一方を自動で同期する。
+    """
+
+    __tablename__ = "diaries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    # ForeignKey でリレーションの「所有権」を宣言する。
+    # ondelete="CASCADE" は DB レベルで User 削除時に DiaryEntry も削除する指示。
+    # SQLAlchemy の cascade と組み合わせることで二重に安全になる。
+    user_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    title: Mapped[str] = mapped_column(String(100), nullable=False)
+    comment: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[str] = mapped_column(
+        String(30),
+        nullable=False,
+        server_default="(datetime('now', 'localtime'))",
+    )
+
+    # User → DiaryEntry の逆方向リレーション
+    user: Mapped["User"] = relationship("User", back_populates="diaries")
+
+    # ---- クラスメソッド（ファクトリ） ----------------------------------------
 
     @classmethod
-    def from_row(cls, row) -> "DiaryEntry":
-        """sqlite3.Row から DiaryEntry インスタンスを生成する。"""
-        return cls(
-            id=row["id"],
-            user_id=row["user_id"],
-            title=row["title"],
-            comment=row["comment"],
-            created_at=row["created_at"],
-        )
+    def list_by_user(cls, user_id: int) -> List["DiaryEntry"]:
+        """指定ユーザーの日記を新しい順で返す。
+
+        ## db.select() + where() + order_by()
+        SQLAlchemy の Select 構文。SQL の `SELECT * FROM diaries WHERE user_id=? ORDER BY ...`
+        に相当する。文字列ではなく Python の式で書くため IDE の補完・型チェックが効く。
+
+        ## .desc()
+        カラムオブジェクトに `.desc()` を呼ぶと降順（DESC）になる。
+        `cls.created_at.desc()` = `ORDER BY created_at DESC`
+
+        ## db.session.scalars().all()
+        `scalars()` は結果セットをモデルオブジェクトのイテレータに変換する。
+        `all()` でリストとして取得する。
+        """
+        return db.session.scalars(
+            db.select(cls)
+            .where(cls.user_id == user_id)
+            .order_by(cls.created_at.desc(), cls.id.desc())
+        ).all()
+
+    @classmethod
+    def create(cls, user_id: int, title: str, comment: str) -> "DiaryEntry":
+        """新しい日記エントリを保存して返す。
+
+        commit 後、SQLAlchemy は DB が生成した id・created_at を自動でオブジェクトに反映する。
+        """
+        entry = cls(user_id=user_id, title=title, comment=comment)
+        db.session.add(entry)
+        db.session.commit()
+        return entry
 
     def to_dict(self) -> dict:
         """JSON シリアライズのために辞書に変換する。
 
-        dataclasses.asdict() を使うと全フィールドを辞書に変換できる。
+        ORM モデルは dataclass ではないため asdict() は使えない。
+        代わりに明示的に辞書を組み立てる。
         """
-        return asdict(self)
-
-    @staticmethod
-    def list_by_user(user_id: int) -> List["DiaryEntry"]:
-        """指定ユーザーの日記を作成日時の降順（新しい順）で返す。
-
-        同一秒内に複数挿入された場合は id DESC を補助キーにして順序を保証する。
-        """
-        db = get_db()
-        rows = db.execute(
-            "SELECT * FROM diaries WHERE user_id = ? ORDER BY created_at DESC, id DESC",
-            (user_id,)
-        ).fetchall()
-        return [DiaryEntry.from_row(row) for row in rows]
-
-    @staticmethod
-    def create(user_id: int, title: str, comment: str) -> "DiaryEntry":
-        """新しい日記エントリを DB に挿入し、作成したエントリを返す。"""
-        db = get_db()
-        cursor = db.execute(
-            "INSERT INTO diaries (user_id, title, comment) VALUES (?, ?, ?)",
-            (user_id, title, comment),
-        )
-        db.commit()
-        row = db.execute(
-            "SELECT * FROM diaries WHERE id = ?",
-            (cursor.lastrowid,)
-        ).fetchone()
-        if row is None:
-            raise RuntimeError("Failed to retrieve created diary entry")
-        return DiaryEntry.from_row(row)
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "title": self.title,
+            "comment": self.comment,
+            "created_at": self.created_at,
+        }
