@@ -2,7 +2,7 @@
 
 > シンプルに、続けやすく。授業のこと、気づいたこと、なんでも書き留める個人日記 Web アプリ。
 
-![トップページ](docs/screenshots/top.png)
+<img width="2940" height="1602" alt="top" src="https://github.com/user-attachments/assets/4512798d-d4c7-4170-acc8-03d217ab62be" />
 
 ---
 
@@ -14,6 +14,8 @@
 - ノートの罫線・マージン線を模したデザイン
 - タイトルと本文を書いて「書き留める」だけのシンプルな操作
 - 日記の作成・編集・削除がページ遷移なし（AJAX）で完結
+
+※コメントアウトが多いのはFlaskを学習するために作成したためです。
 
 ## 機能
 
@@ -31,15 +33,15 @@
 ## スクリーンショット
 
 ### ダッシュボード
-![ダッシュボード](docs/screenshots/dashboard.png)
+<img width="2940" height="1602" alt="login" src="https://github.com/user-attachments/assets/b02fe77a-de3e-4c6c-8e47-e00e38c37794" />
 
 ### ログイン画面
 
-![ログイン](docs/screenshots/login.png)
+<img width="2940" height="1602" alt="edit-modal" src="https://github.com/user-attachments/assets/ae881736-5c18-4d7a-8efe-09f928677cdc" />
 
 ### 編集モーダル
 
-![編集モーダル](docs/screenshots/edit-modal.png)
+<img width="2940" height="1602" alt="dashboard" src="https://github.com/user-attachments/assets/6aeebb8f-b087-4033-b8ea-65d87acd3235" />
 
 ---
 
